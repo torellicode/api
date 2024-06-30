@@ -2,6 +2,9 @@
 module Api
   module V1
     class SessionsController < ApplicationController
+      include ActionView::Helpers::DateHelper
+      include ActionView::Helpers::TranslationHelper
+      
       skip_before_action :authenticate_request, only: [:create]
 
       def create
@@ -13,7 +16,14 @@ module Api
           user_token = user.create_user_token
           session = user.create_session
 
-          render json: UserSerializer.new(user).serializable_hash.merge(token: { token: user_token.token, expires_at: user.user_token.expires_at }), status: :ok
+          render json: UserSerializer.new(user).serializable_hash.tap { |hash|
+            hash[:data].merge!(
+              session: {
+                expires_at: l(user_token.expires_at, format: :long)
+              },
+              token: user_token.token
+            )
+          }, status: :ok
         else
           render json: { error: 'Invalid email or password' }, status: :unauthorized
         end

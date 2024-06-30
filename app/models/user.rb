@@ -5,4 +5,6 @@ class User < ApplicationRecord
   has_one :session, dependent: :destroy
 
   validates :email, presence: true, uniqueness: { case_sensitive: true }
+  validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+  validates :password_confirmation, presence: true, length: { minimum: 6 }, allow_nil: true
 end
