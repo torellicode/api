@@ -7,7 +7,7 @@ module Api
         user_token = user.create_user_token
 
         if user_token.save
-          render json: { token: user_token.token, expires_at: user_token.expires_at }, status: :ok
+          render json: UserTokenSerializer.new(user_token).serializable_hash, status: :ok
         else
           render json: { error: user_token.errors.full_messages }, status: :unprocessable_entity
         end

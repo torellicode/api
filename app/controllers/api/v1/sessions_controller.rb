@@ -13,7 +13,7 @@ module Api
           user_token = user.create_user_token
           session = user.create_session
 
-          render json: { message: 'Logged in successfully', token: user_token.token, session_id: session.session_id }
+          render json: UserSerializer.new(user).serializable_hash.merge(token: { token: user_token.token, expires_at: user.user_token.expires_at }), status: :ok
         else
           render json: { error: 'Invalid email or password' }, status: :unauthorized
         end

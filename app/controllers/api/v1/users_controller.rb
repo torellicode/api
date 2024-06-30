@@ -8,7 +8,7 @@ module Api
         if user.save
           user_token = user.create_user_token
           user.create_session
-          render json: { message: 'User created successfully', token: user_token.token }, status: :ok
+          render json: UserSerializer.new(user).serializable_hash.merge({ token: user_token.token, session: user.session.expires_at? }), status: :ok
         else
           render json: { error: user.errors.full_messages }, status: :unprocessable_entity
         end
@@ -16,7 +16,7 @@ module Api
 
       def update
         if current_user.update(user_params)
-          render json: { message: 'User updated successfully' }, status: :ok
+          render json: current_user_serializer, status: :ok
         else
           render json: { error: current_user.errors.full_messages }, status: :unprocessable_entity
         end
@@ -31,13 +31,17 @@ module Api
       end
 
       def data
-        render json: current_user, status: :ok
+        render json: current_user_serializer, status: :ok
       end
 
       private
 
       def user_params
         params.require(:user).permit(:email, :password, :password_confirmation)
+      end
+
+      def current_user_serializer
+        UserSerializer.new(current_user).serializable_hash
       end
     end
   end
