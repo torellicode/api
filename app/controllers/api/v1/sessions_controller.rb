@@ -20,7 +20,9 @@ module Api
       end
 
       def destroy
-        user_token = UserToken.find_by(token: request.headers['Authorization'].split(" ").last)
+        encrypted_token = request.headers['Authorization'].split(" ").last
+        user_token = UserToken.find_by(token: encrypted_token)
+
         if user_token
           user_token.destroy
           user_token.user.session.destroy

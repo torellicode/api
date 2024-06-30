@@ -1,18 +1,14 @@
-# app/controllers/api/v1/users_controller.rb
 module Api
   module V1
     class UsersController < ApplicationController
-      skip_before_action :authenticate_request, only: %i[create]
+      skip_before_action :authenticate_request, only: [:create]
 
       def create
         user = User.new(user_params)
         if user.save
           user_token = user.create_user_token
-          session = user.create_session
-          render json: {
-            message: 'User created successfully',
-            token: user_token.token
-          }, status: :ok
+          user.create_session
+          render json: { message: 'User created successfully', token: user_token.token }, status: :ok
         else
           render json: { error: user.errors.full_messages }, status: :unprocessable_entity
         end
@@ -27,16 +23,15 @@ module Api
       end
 
       def destroy
-        if current_user
-          current_user.destroy
-          render json: { message: 'User deleted successfully' }
+        if current_user.destroy
+          render json: { message: 'User deleted successfully' }, status: :ok
         else
           render json: { error: current_user.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       def data
-        render json: current_user
+        render json: current_user, status: :ok
       end
 
       private
