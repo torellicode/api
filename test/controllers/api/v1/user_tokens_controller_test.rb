@@ -1,6 +1,6 @@
 require "test_helper"
 
-class UserTokensControllerTest < ActionDispatch::IntegrationTest
+class Api::V1::UserTokensControllerTest < ActionDispatch::IntegrationTest
   # test "the truth" do
   #   assert true
   # end

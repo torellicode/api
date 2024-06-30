@@ -1,9 +1,14 @@
 Rails.application.routes.draw do
-  resources :users, only: %i[create update destroy data]
+  namespace :api do
+    namespace :v1 do
+      resources :users, only: %i[create update destroy data]
 
-  get '/data', to: 'users#data'
-  post '/login', to: 'sessions#create'
-  delete '/logout', to: 'sessions#destroy'
+      get '/data', to: 'users#data'
+      post '/login', to: 'sessions#create'
+      delete '/logout', to: 'sessions#destroy'
+    end
+  end
+  
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
