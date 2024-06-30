@@ -10,7 +10,7 @@ module Api
           user.create_session
           render json: UserSerializer.new(user).serializable_hash.merge({ token: user_token.token, session: user.session.expires_at? }), status: :ok
         else
-          render json: { error: user.errors.full_messages }, status: :unprocessable_entity
+          raise CustomError.new(pointer: 'user', code: 'validation_error', message: user.errors.full_messages.join(', '))
         end
       end
 
@@ -18,7 +18,7 @@ module Api
         if current_user.update(user_params)
           render json: current_user_serializer, status: :ok
         else
-          render json: { error: current_user.errors.full_messages }, status: :unprocessable_entity
+          raise CustomError.new(pointer: 'user', code: 'validation_error', message: current_user.errors.full_messages.join(', '))
         end
       end
 
@@ -26,7 +26,7 @@ module Api
         if current_user.destroy
           render json: { message: 'User deleted successfully' }, status: :ok
         else
-          render json: { error: current_user.errors.full_messages }, status: :unprocessable_entity
+          raise CustomError.new(pointer: 'user', code: 'deletion_error', message: current_user.errors.full_messages.join(', '))
         end
       end
 
