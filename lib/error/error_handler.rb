@@ -4,6 +4,7 @@ module ErrorHandler
   included do
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
     rescue_from ActionController::ParameterMissing, with: :bad_request
+    rescue_from UnauthorizedError, with: :unauthorized_error
     rescue_from StandardError, with: :internal_server_error
     rescue_from CustomError, with: :custom_error
   end
@@ -16,6 +17,10 @@ module ErrorHandler
 
   def bad_request(error)
     render json: { errors: [{ pointer: 'parameter', code: 'missing', detail: error.message }] }, status: :bad_request
+  end
+
+  def unauthorized_error(error)
+    render json: { errors: [{ pointer: 'authorization', code: 'unauthorized', detail: error.message }] }, status: :unauthorized
   end
 
   def internal_server_error(error)

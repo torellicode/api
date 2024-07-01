@@ -4,7 +4,7 @@ module Api
     class SessionsController < ApplicationController
       include ActionView::Helpers::DateHelper
       include ActionView::Helpers::TranslationHelper
-      
+
       skip_before_action :authenticate_request, only: [:create]
 
       def create
@@ -14,7 +14,7 @@ module Api
           user.session&.destroy
 
           user_token = user.create_user_token
-          session = user.create_session
+          user.create_session
 
           render json: UserSerializer.new(user).serializable_hash.tap { |hash|
             hash[:data].merge!(
@@ -25,12 +25,18 @@ module Api
             )
           }, status: :ok
         else
-          render json: { error: 'Invalid email or password' }, status: :unauthorized
+          raise CustomError.new(pointer: 'session', code: 'validation_error', message: 'Invalid email or password')
         end
       end
 
       def destroy
-        encrypted_token = request.headers['Authorization'].split(" ").last
+        auth_header = request.headers['Authorization']
+
+        if auth_header.nil? || !auth_header.match(/^Bearer /)
+          raise CustomError.new(pointer: 'token', code: 'missing_token', message: 'Token is missing or invalid')
+        end
+
+        encrypted_token = auth_header.split(" ").last
         user_token = UserToken.find_by(token: encrypted_token)
 
         if user_token
@@ -38,7 +44,7 @@ module Api
           user_token.user.session.destroy
           render json: { message: 'Logged out successfully' }
         else
-          render json: { error: 'Invalid token' }, status: :unauthorized
+          raise UnauthorizedError.new('Invalid token')
         end
       end
     end

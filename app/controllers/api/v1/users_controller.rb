@@ -42,6 +42,10 @@ module Api
 
       def data
         render json: current_user_serializer, status: :ok
+      rescue ActiveRecord::RecordNotFound => e
+        record_not_found(e)
+      rescue StandardError => e
+        internal_server_error(e)
       end
 
       private

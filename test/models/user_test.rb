@@ -60,7 +60,7 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
-  test 'should update with valid param' do
+  test 'should update with valid params' do
     assert_no_difference("User.count", 1) do
       assert_changes -> { @user.reload.email }, from: @user.email, to: valid_params[:email] do
         assert @user.update(valid_params)
