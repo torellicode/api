@@ -1,4 +1,3 @@
-# lib/error/custom_error.rb
 class CustomError < StandardError
   attr_reader :pointer, :code, :status
 
