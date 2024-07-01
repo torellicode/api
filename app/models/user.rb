@@ -8,4 +8,14 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: { case_sensitive: true }
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
   validates :password_confirmation, presence: true, length: { minimum: 6 }, allow_nil: true
+
+  after_create :create_initial_articles
+
+  private
+
+  def create_initial_articles
+    20.times do |i|
+      articles.create(title: "Article #{i + 1}", content: "This is the content of article #{i + 1}.")
+    end
+  end
 end
