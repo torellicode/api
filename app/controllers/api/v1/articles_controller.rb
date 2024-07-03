@@ -2,7 +2,7 @@
 module Api
   module V1
     class ArticlesController < ApplicationController
-      include Pagination
+      # include Pagination
 
       before_action :set_article, only: %i[show update destroy]
 

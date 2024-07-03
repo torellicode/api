@@ -6,8 +6,8 @@ class User < ApplicationRecord
   has_many :articles, dependent: :destroy
 
   validates :email, presence: true, uniqueness: { case_sensitive: true }
-  validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
-  validates :password_confirmation, presence: true, length: { minimum: 6 }, allow_nil: true
+  validates :password, presence: true, length: { minimum: 6 }
+  validates :password_confirmation, presence: true, length: { minimum: 6 }
 
   after_create :create_initial_articles
 

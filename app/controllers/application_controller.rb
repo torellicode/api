@@ -1,29 +1,24 @@
 class ApplicationController < ActionController::API
-  include ErrorHandler
-  
+  include ErrorFormatter
+
   before_action :authenticate_request
 
   private
 
   def authenticate_request
     token = token_from_header
-    if token.nil?
-      raise UnauthorizedError.new('Token is missing or invalid')
-    end
+    raise Errors::MissingTokenError if token.nil?
 
     decrypted_data = UserToken.decode(token)
     user_id = decrypted_data[:user_id] if decrypted_data
     user_token = UserToken.find_by(user_id: user_id, token: token)
 
-    if user_token.nil?
-      raise UnauthorizedError.new('Invalid token')
-    elsif user_token.expires_at < Time.current
-      user_token.destroy
-      user_token.user.session.destroy
-      raise UnauthorizedError.new('Token expired')
-    else
-      @current_user = user_token.user
-    end
+    raise Errors::InvalidTokenError if user_token.nil?
+    raise Errors::ExpiredTokenError if user_token.expires_at < Time.current
+
+    @current_user = user_token.user
+  rescue Errors::MissingTokenError, Errors::InvalidTokenError, Errors::ExpiredTokenError => e
+    handle_generic_error(e)
   end
 
   def token_from_header
