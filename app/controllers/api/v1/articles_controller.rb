@@ -1,8 +1,7 @@
-# app/controllers/api/v1/articles_controller.rb
 module Api
   module V1
     class ArticlesController < ApplicationController
-      # include Pagination
+      include Pagination
 
       before_action :set_article, only: %i[show update destroy]
 
@@ -19,7 +18,7 @@ module Api
         if article.save
           render json: ArticleSerializer.new(article).serializable_hash, status: :created
         else
-          raise CustomError.new(pointer: 'article', code: 'validation_error', message: article.errors.full_messages.join(', '))
+          render json: format_errors(article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
       end
 
@@ -27,7 +26,7 @@ module Api
         if @article.update(article_params)
           render json: ArticleSerializer.new(@article).serializable_hash, status: :ok
         else
-          raise CustomError.new(pointer: 'article', code: 'validation_error', message: @article.errors.full_messages.join(', '))
+          render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
       end
 
@@ -35,7 +34,7 @@ module Api
         if @article.destroy
           render json: { message: 'Article deleted successfully' }, status: :ok
         else
-          raise CustomError.new(pointer: 'article', code: 'deletion_error', message: @article.errors.full_messages.join(', '))
+          render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
       end
 
@@ -48,7 +47,7 @@ module Api
       def set_article
         @article = current_user.articles.find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        raise CustomError.new(pointer: 'article', code: 'not_found', message: 'Article not found')
+        render json: format_errors('Article not found'), status: :not_found
       end
 
       def article_params

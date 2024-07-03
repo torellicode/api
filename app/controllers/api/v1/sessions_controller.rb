@@ -1,4 +1,3 @@
-# app/controllers/api/v1/sessions_controller.rb
 module Api
   module V1
     class SessionsController < ApplicationController
@@ -25,7 +24,7 @@ module Api
             )
           }, status: :ok
         else
-          raise CustomError.new(pointer: 'session', code: 'validation_error', message: 'Invalid email or password')
+          render json: format_errors('Invalid email or password'), status: :unprocessable_entity
         end
       end
 
@@ -33,7 +32,8 @@ module Api
         auth_header = request.headers['Authorization']
 
         if auth_header.nil? || !auth_header.match(/^Bearer /)
-          raise CustomError.new(pointer: 'token', code: 'missing_token', message: 'Token is missing or invalid')
+          render json: format_errors('Token is missing or invalid'), status: :unauthorized
+          return
         end
 
         encrypted_token = auth_header.split(" ").last
@@ -44,7 +44,7 @@ module Api
           user_token.user.session.destroy
           render json: { message: 'Logged out successfully' }
         else
-          raise UnauthorizedError.new('Invalid token')
+          render json: format_errors('Invalid token'), status: :unauthorized
         end
       end
     end
