@@ -29,4 +29,9 @@ class ApplicationController < ActionController::API
   def current_user
     @current_user
   end
+
+  def create_token_and_session(user)
+    user.create_user_token!
+    user.create_session!
+  end
 end
