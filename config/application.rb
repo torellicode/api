@@ -1,4 +1,7 @@
 require_relative "boot"
+require_relative '../lib/errors/missing_token_error'
+require_relative '../lib/errors/invalid_token_error'
+require_relative '../lib/errors/expired_token_error'
 
 require "rails/all"
 
