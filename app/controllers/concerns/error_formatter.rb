@@ -69,8 +69,8 @@ module ErrorFormatter
   end
 
   def custom_error?(error)
-    error.is_a?(MissingTokenError) ||
-      error.is_a?(InvalidTokenError) ||
-      error.is_a?(ExpiredTokenError)
+    error.is_a?(Errors::MissingTokenError) ||
+      error.is_a?(Errors::InvalidTokenError) ||
+      error.is_a?(Errors::ExpiredTokenError)
   end
 end

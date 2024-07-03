@@ -7,17 +7,17 @@ class ApplicationController < ActionController::API
 
   def authenticate_request
     token = token_from_header
-    raise MissingTokenError if token.nil?
+    raise Errors::MissingTokenError if token.nil?
 
     decrypted_data = UserToken.decode(token)
     user_id = decrypted_data[:user_id] if decrypted_data
     user_token = UserToken.find_by(user_id: user_id, token: token)
 
-    raise InvalidTokenError if user_token.nil?
-    raise ExpiredTokenError if user_token.expires_at < Time.current
+    raise Errors::InvalidTokenError if user_token.nil?
+    raise Errors::ExpiredTokenError if user_token.expires_at < Time.current
 
     @current_user = user_token.user
-  rescue MissingTokenError, InvalidTokenError, ExpiredTokenError => e
+  rescue Errors::MissingTokenError, Errors::InvalidTokenError, Errors::ExpiredTokenError => e
     handle_generic_error(e)
   end
 

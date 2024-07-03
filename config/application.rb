@@ -34,3 +34,6 @@ module Api
     config.api_only = true
   end
 end
+
+# Explicitly require the custom error classes
+Dir[Rails.root.join('lib/errors/**/*.rb')].each { |file| require file }
