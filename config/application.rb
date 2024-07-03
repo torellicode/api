@@ -1,5 +1,4 @@
 require_relative "boot"
-require_relative '../lib/errors/custom_error'
 
 require "rails/all"
 
@@ -17,8 +16,8 @@ module Api
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w(assets tasks))
 
-    # Autoload paths for custom modules
-    config.autoload_paths << Rails.root.join('lib')
+    # Autoload paths for custom modules in lib
+    config.autoload_paths += %W(#{config.root}/lib)
     config.eager_load_paths += %W(#{config.root}/lib)
 
     # Configuration for the application, engines, and railties goes here.
