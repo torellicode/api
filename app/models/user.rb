@@ -11,8 +11,6 @@ class User < ApplicationRecord
 
   after_create :create_initial_articles
 
-  
-
   private
 
   def create_initial_articles

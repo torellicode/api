@@ -9,43 +9,36 @@ module Api
       def create
         user = User.find_by(email: params[:email])
         if user&.authenticate(params[:password])
-          user.user_token&.destroy
-          user.session&.destroy
+          destroy_token_and_session(user)
+          create_token_and_session(user)
 
-          user_token = user.create_user_token
-          user.create_session
-
-          render json: UserSerializer.new(user).serializable_hash.tap { |hash|
-            hash[:data].merge!(
-              session: {
-                expires_at: l(user_token.expires_at, format: :long)
-              },
-              token: user_token.token
-            )
-          }, status: :ok
+          render json: { message: 'Successfully logged in' }.merge(sessions_created_response(user)), status: :ok
         else
           render json: format_errors('Invalid email or password'), status: :unprocessable_entity
         end
       end
 
       def destroy
-        auth_header = request.headers['Authorization']
-
-        if auth_header.nil? || !auth_header.match(/^Bearer /)
-          render json: format_errors('Token is missing or invalid'), status: :unauthorized
-          return
-        end
-
-        encrypted_token = auth_header.split(" ").last
-        user_token = UserToken.find_by(token: encrypted_token)
+        user_token = UserToken.find_by(token: token_from_header)
 
         if user_token
-          user_token.destroy
-          user_token.user.session.destroy
+          destroy_token_and_session(User.find_by(user_token: user_token))
           render json: { message: 'Logged out successfully' }
-        else
-          render json: format_errors('Invalid token'), status: :unauthorized
         end
+      end
+
+      private
+
+      def sessions_created_response(user)
+        user_token = user.user_token
+        UserSerializer.new(user).serializable_hash.tap { |hash|
+          hash[:data].merge!(
+            session: {
+              expires_at: l(user_token.expires_at, format: :long)
+            },
+            token: user_token.token
+          )
+        }
       end
     end
   end

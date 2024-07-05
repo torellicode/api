@@ -137,5 +137,6 @@ It may benefit you to also note your id
 
 
 ### Planned updates
-- Enforcing consistent request format across application resources
-- Building a more robust and complete test suite
+- improve error handeling for sessions and articles
+- edge case error handling
+- robust and efficient test suite

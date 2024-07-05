@@ -16,7 +16,7 @@ module Api
       def create
         article = current_user.articles.new(article_params)
         if article.save
-          render json: ArticleSerializer.new(article).serializable_hash, status: :created
+          render json: { message: 'Article created successfully' }.merge(ArticleSerializer.new(article).serializable_hash), status: :created
         else
           render json: format_errors(article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
@@ -24,7 +24,7 @@ module Api
 
       def update
         if @article.update(article_params)
-          render json: ArticleSerializer.new(@article).serializable_hash, status: :ok
+          render json: { message: 'Article updated successfully' }.merge(ArticleSerializer.new(article).serializable_hash), status: :ok
         else
           render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
