@@ -10,7 +10,7 @@ module Api
         user = User.new(user_params)
         if user.save!
           create_token_and_session(user)
-          render json: user_created_response(user), status: :ok
+          render json: { message: 'User created successfully' }.merge(user_created_response(user)), status: :ok
         else
           render json: format_errors(user.errors), status: :unprocessable_entity
         end
@@ -18,7 +18,7 @@ module Api
 
       def update
         if current_user.update!(user_params)
-          render json: current_user_serializer, status: :ok
+          render json: { message: 'User updated successfuly' }.merge(current_user_serializer), status: :ok
         else
           render json: format_errors(current_user.errors.full_messages), status: :unprocessable_entity
         end

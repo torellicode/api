@@ -1,7 +1,7 @@
 module Errors
   class MissingTokenError < StandardError
     def message
-      "Token is missing or invalid"
+      "Token is missing"
     end
   end
 end
