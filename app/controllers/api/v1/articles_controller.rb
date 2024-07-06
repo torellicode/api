@@ -5,14 +5,6 @@ module Api
 
       before_action :set_article, only: %i[show update destroy]
 
-      def index
-        paginated_articles = paginate(current_user.articles, page: params[:page], items: params[:per_page] || 10)
-        render json: {
-          articles: ArticleSerializer.new(paginated_articles[:records]).serializable_hash,
-          pagination: paginated_articles[:pagination]
-        }, status: :ok
-      end
-
       def create
         article = current_user.articles.new(article_params)
         if article.save
@@ -22,9 +14,21 @@ module Api
         end
       end
 
+      def show
+        render json: ArticleSerializer.new(@article).serializable_hash, status: :ok
+      end
+
+      def index
+        paginated_articles = paginate(current_user.articles, page: params[:page], items: params[:per_page] || 10)
+        render json: {
+          articles: ArticleSerializer.new(paginated_articles[:records]).serializable_hash,
+          pagination: paginated_articles[:pagination]
+        }, status: :ok
+      end
+
       def update
         if @article.update(article_params)
-          render json: { message: 'Article updated successfully' }.merge(ArticleSerializer.new(article).serializable_hash), status: :ok
+          render json: { message: 'Article updated successfully' }.merge(ArticleSerializer.new(@article).serializable_hash), status: :ok
         else
           render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
@@ -36,10 +40,6 @@ module Api
         else
           render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
         end
-      end
-
-      def show
-        render json: ArticleSerializer.new(@article).serializable_hash, status: :ok
       end
 
       private
