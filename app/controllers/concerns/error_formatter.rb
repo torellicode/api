@@ -34,43 +34,31 @@ module ErrorFormatter
   end
 
   def extract_messages(error)
+    resource = extract_resource_from_controller.capitalize
+
     case error
+    when Errors::MissingTokenError, Errors::InvalidTokenError, Errors::ExpiredTokenError
+      [error.message]
     when ActiveModel::Errors
-      error.full_messages
+      error.full_messages.map { |msg| "#{resource}: #{msg}" }
     when ActiveRecord::RecordInvalid
-      error.record.errors.full_messages
+      error.record.errors.full_messages.map { |msg| "#{resource}: #{msg}" }
     when ActiveRecord::RecordNotFound
-      ["Record not found"]
+      ["#{resource} not found"]
     when ActionController::ParameterMissing
       ["Parameter missing: #{error.param}"]
-    when ActionController::RoutingError
-      ["Routing error"]
-    when ActionController::UnknownFormat
-      ["Unknown format"]
-    when ActionController::UnknownHttpMethod
-      ["Unknown HTTP method"]
-    when ActionController::InvalidAuthenticityToken
-      ["Invalid authenticity token"]
-    when ActionController::InvalidCrossOriginRequest
-      ["Invalid cross-origin request"]
-    when ActionController::MissingExactTemplate
-      ["Missing exact template"]
-    when ActionController::BadRequest
-      ["Bad request"]
     else
-      custom_or_default_message(error)
+      custom_or_default_message(error, resource)
     end
   rescue => e
     ["An error occurred, but could not extract specific message: #{e.message}"]
   end
 
-  def custom_or_default_message(error)
-    custom_error?(error) ? [error.message] : [error.message || "An unknown error occurred"]
+  def custom_or_default_message(error, resource)
+    ["#{resource}: #{error.message || 'An unknown error occurred'}"]
   end
 
-  def custom_error?(error)
-    error.is_a?(Errors::MissingTokenError) ||
-      error.is_a?(Errors::InvalidTokenError) ||
-      error.is_a?(Errors::ExpiredTokenError)
+  def extract_resource_from_controller
+    controller_name.singularize
   end
 end

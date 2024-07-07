@@ -2,6 +2,7 @@ module Api
   module V1
     class ArticlesController < ApplicationController
       include Pagination
+      include ErrorFormatter
 
       before_action :set_article, only: %i[show update destroy]
 
@@ -21,8 +22,8 @@ module Api
       def index
         paginated_articles = paginate(current_user.articles, page: params[:page], items: params[:per_page] || 10)
         render json: {
-          articles: ArticleSerializer.new(paginated_articles[:records]).serializable_hash,
-          pagination: paginated_articles[:pagination]
+          pagination: paginated_articles[:pagination],
+          articles: ArticleSerializer.new(paginated_articles[:records]).serializable_hash
         }, status: :ok
       end
 
@@ -46,8 +47,8 @@ module Api
 
       def set_article
         @article = current_user.articles.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        render json: format_errors('Article not found'), status: :not_found
+      rescue ActiveRecord::RecordNotFound => e
+        render json: format_errors(e), status: :not_found
       end
 
       def article_params
