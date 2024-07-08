@@ -14,7 +14,7 @@ module Api
 
           render json: { message: 'Successfully logged in' }.merge(sessions_created_response(user)), status: :ok
         else
-          render json: format_errors('Invalid email or password'), status: :unprocessable_entity
+          render json: { errors: [ErrorFormatter.invalid_login_error] }, status: :unprocessable_entity
         end
       end
 
@@ -22,23 +22,31 @@ module Api
         user_token = UserToken.find_by(token: token_from_header)
 
         if user_token
-          destroy_token_and_session(User.find_by(user_token: user_token))
-          render json: { message: 'Logged out successfully' }
+          user = User.find_by(id: user_token.user_id)
+          destroy_token_and_session(user) if user
+          render json: { message: 'Logged out successfully' }, status: :ok
+        else
+          render json: { errors: [ErrorFormatter.invalid_token_error(InvalidTokenError.new("Invalid or expired token"))] }, status: :unprocessable_entity
         end
       end
 
       private
 
+      def token_from_header
+        auth_header = request.headers['Authorization']
+        auth_header.split(' ').last if auth_header.present?
+      end
+
       def sessions_created_response(user)
         user_token = user.user_token
-        UserSerializer.new(user).serializable_hash.tap { |hash|
+        UserSerializer.new(user).serializable_hash.tap do |hash|
           hash[:data].merge!(
             session: {
               expires_at: l(user_token.expires_at, format: :long)
             },
             token: user_token.token
           )
-        }
+        end
       end
     end
   end

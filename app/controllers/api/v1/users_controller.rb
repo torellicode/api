@@ -5,31 +5,33 @@ module Api
       include ActionView::Helpers::TranslationHelper
 
       skip_before_action :authenticate_request, only: [:create]
+      before_action :set_user, only: [:update, :destroy]
+      before_action :authorize_user, only: [:update, :destroy]
 
       def create
         user = User.new(user_params)
-        if user.save!
+        if user.save
           create_token_and_session(user)
-          render json: { message: 'User created successfully' }.merge(user_created_response(user)), status: :ok
+          render json: { message: 'User created successfully' }.merge(user_created_response(user)), status: :created
         else
-          render json: format_errors(user.errors), status: :unprocessable_entity
+          render json: { errors: ErrorFormatter.format_errors(user) }, status: :unprocessable_entity
         end
       end
 
       def update
-        if current_user.update!(user_params)
-          render json: { message: 'User updated successfuly' }.merge(current_user_serializer), status: :ok
+        if @user.update(user_params)
+          render json: { message: 'User updated successfully' }.merge(current_user_serializer), status: :ok
         else
-          render json: format_errors(current_user.errors.full_messages), status: :unprocessable_entity
+          render json: { errors: ErrorFormatter.format_errors(@user) }, status: :unprocessable_entity
         end
       end
 
       def destroy
-        if current_user.destroy!
-          destroy_token_and_session(current_user)
+        if @user.destroy
+          destroy_token_and_session(@user)
           render json: { message: 'User deleted successfully' }, status: :ok
         else
-          render json: format_errors('user', current_user.errors.full_messages, 422), status: :unprocessable_entity
+          render json: { errors: ErrorFormatter.format_errors(@user) }, status: :unprocessable_entity
         end
       end
 
@@ -37,11 +39,19 @@ module Api
         if current_user.present?
           render json: current_user_serializer, status: :ok
         else
-          render json: format_errors('user', 'User not found', 404), status: :not_found
+          render json: { errors: ErrorFormatter.record_not_found_error("User not found") }, status: :not_found
         end
       end
 
       private
+
+      def set_user
+        @user = User.find(params[:id])
+      end
+
+      def authorize_user
+        render_unauthorized_error unless @user == current_user
+      end
 
       def user_params
         params.require(:user).permit(:email, :password, :password_confirmation)
@@ -60,6 +70,10 @@ module Api
             token: user.user_token.token
           )
         end
+      end
+
+      def render_unauthorized_error
+        render json: { errors: [ErrorFormatter.unauthorized_error(UnauthorizedError.new("You are not authorized to access this resource"))] }, status: :forbidden
       end
     end
   end

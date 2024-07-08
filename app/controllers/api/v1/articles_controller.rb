@@ -2,16 +2,17 @@ module Api
   module V1
     class ArticlesController < ApplicationController
       include Pagination
-      include ErrorFormatter
 
+      before_action :authenticate_request
       before_action :set_article, only: %i[show update destroy]
+      before_action :authorize_article, only: %i[show update destroy]
 
       def create
         article = current_user.articles.new(article_params)
         if article.save
           render json: { message: 'Article created successfully' }.merge(ArticleSerializer.new(article).serializable_hash), status: :created
         else
-          render json: format_errors(article.errors.full_messages.join(', ')), status: :unprocessable_entity
+          render json: { errors: ErrorFormatter.format_errors(article) }, status: :unprocessable_entity
         end
       end
 
@@ -31,7 +32,7 @@ module Api
         if @article.update(article_params)
           render json: { message: 'Article updated successfully' }.merge(ArticleSerializer.new(@article).serializable_hash), status: :ok
         else
-          render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
+          render json: { errors: ErrorFormatter.format_errors(@article) }, status: :unprocessable_entity
         end
       end
 
@@ -39,20 +40,28 @@ module Api
         if @article.destroy
           render json: { message: 'Article deleted successfully' }, status: :ok
         else
-          render json: format_errors(@article.errors.full_messages.join(', ')), status: :unprocessable_entity
+          render json: { errors: ErrorFormatter.format_errors(@article) }, status: :unprocessable_entity
         end
       end
 
       private
 
       def set_article
-        @article = current_user.articles.find(params[:id])
+        @article = Article.find(params[:id])
       rescue ActiveRecord::RecordNotFound => e
-        render json: format_errors(e), status: :not_found
+        render json: { errors: [ErrorFormatter.record_not_found_error(e)] }, status: :not_found
+      end
+
+      def authorize_article
+        render_unauthorized_error unless @article.user_id == current_user.id
       end
 
       def article_params
         params.require(:article).permit(:title, :content)
+      end
+
+      def render_unauthorized_error
+        render json: { errors: [ErrorFormatter.unauthorized_error(UnauthorizedError.new("You are not authorized to access this resource"))] }, status: :forbidden
       end
     end
   end

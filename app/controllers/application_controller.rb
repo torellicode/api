@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
-  include ErrorFormatter
   include Authentication
+  include ErrorHandling
 
   before_action :authenticate_request
 

@@ -3,6 +3,9 @@ module Authentication
 
   included do
     before_action :authenticate_request
+    rescue_from Authentication::MissingTokenError, with: :handle_missing_token_error
+    rescue_from Authentication::InvalidTokenError, with: :handle_invalid_token_error
+    rescue_from Authentication::ExpiredTokenError, with: :handle_expired_token_error
   end
 
   private
@@ -11,21 +14,17 @@ module Authentication
 
   def authenticate_request
     token = extract_token
-    raise Errors::MissingTokenError unless request.headers['Authorization'].present?
-    raise Errors::InvalidTokenError unless token
-
+    raise MissingTokenError if token.nil?
     user_token = find_user_token(token)
-    raise Errors::InvalidTokenError unless user_token
-    raise Errors::ExpiredTokenError if user_token.expires_at < Time.current
-
+    raise InvalidTokenError unless user_token
+    raise ExpiredTokenError if user_token.expires_at < Time.current
     @current_user = user_token.user
-  rescue Errors::MissingTokenError, Errors::InvalidTokenError, Errors::ExpiredTokenError => e
-    handle_authentication_error(e)
   end
 
   def extract_token
     auth_header = request.headers['Authorization']
-    return nil unless auth_header.present? && auth_header.match?(BEARER_PATTERN)
+    raise MissingTokenError unless auth_header.present?
+    raise InvalidTokenError unless auth_header.match?(BEARER_PATTERN)
     auth_header.split(" ").last
   end
 
@@ -35,11 +34,23 @@ module Authentication
     UserToken.find_by(user_id: user_id, token: token)
   end
 
-  def handle_authentication_error(error)
-    handle_generic_error(error)
+  def handle_missing_token_error(error)
+    render json: { errors: [ErrorFormatter.missing_token_error(error)] }, status: :bad_request
+  end
+
+  def handle_invalid_token_error(error)
+    render json: { errors: [ErrorFormatter.invalid_token_error(error)] }, status: :unauthorized
+  end
+
+  def handle_expired_token_error(error)
+    render json: { errors: [ErrorFormatter.expired_token_error(error)] }, status: :unauthorized
   end
 
   def current_user
     @current_user
   end
+
+  class MissingTokenError < StandardError; end
+  class InvalidTokenError < StandardError; end
+  class ExpiredTokenError < StandardError; end
 end

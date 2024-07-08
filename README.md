@@ -4,10 +4,10 @@ Built using Ruby version 3.2.2 and Rails verison 7.1.3.4
 <br>
 
 ### Features
-- **User Tokens** Encryption/decryption similar to JWT
-- **Sessions** Creating a new session will provide a token
-- **Users** Creating a new user begins a session and provide a token
-- **Articles** 20 articles are created upon user creation to test pagination
+- **User Tokens** - Encryption/decryption similar to JWT
+- **Sessions** - Creating a new session will provide a token
+- **Users** - Creating a new user begins a session and provide a token
+- **Articles** - 20 articles are created upon user creation to test pagination
 - **Error Handling**
 - **Serialization**
 - **Pagination**
@@ -34,10 +34,10 @@ https://torelli-api-e68f6795f068.herokuapp.com
       }
     }
     ```
-### **You will recieve your token in the response body. Keep this token for all future requests**
+### **You will recieve your token in the response body. <u>Keep this token for all future requests</u>**
 
 #### Fetch user data
-- **Endpoint**: `/api/v1/data`
+- **Endpoint**: `/api/v1/users/data`
 - **Method**: `GET`
 - **Headers**: `Authorization: Bearer <token>`
 
