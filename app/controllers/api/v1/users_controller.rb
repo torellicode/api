@@ -5,8 +5,8 @@ module Api
       include ActionView::Helpers::TranslationHelper
 
       skip_before_action :authenticate_request, only: [:create]
-      before_action :set_user, only: [:update, :destroy]
-      before_action :authorize_user, only: [:update, :destroy]
+      before_action :set_user, only: %i[update destroy]
+      before_action :authorize_user, only: %i[update destroy]
 
       def create
         user = User.new(user_params)
@@ -47,10 +47,8 @@ module Api
 
       def set_user
         @user = User.find(params[:id])
-      end
-
-      def authorize_user
-        render_unauthorized_error unless @user == current_user
+      rescue ActiveRecord::RecordNotFound => e
+        render_not_found_response(e)
       end
 
       def user_params
@@ -70,6 +68,10 @@ module Api
             token: user.user_token.token
           )
         end
+      end
+
+      def authorize_user
+        render_unauthorized_error unless @user == current_user
       end
 
       def render_unauthorized_error

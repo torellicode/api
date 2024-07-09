@@ -5,10 +5,10 @@ class ErrorsController < ApplicationController
     render json: {
       errors: [
         {
-          status: 404,
+          pointer: 'request_path',
           code: 'routing_error',
           detail: "Route not found: #{request.path}",
-          pointer: 'request_path'
+          status: 404
         }
       ]
     }, status: :not_found

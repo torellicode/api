@@ -8,7 +8,7 @@ class ErrorFormatter
 
     def parameter_missing_error(exception)
       ErrorDetails.single_error(
-        status: 422,
+        status: 400,
         attribute: exception.param,
         code: 'parameter_missing',
         message: exception.message
@@ -19,7 +19,7 @@ class ErrorFormatter
       ErrorDetails.single_error(
         status: 400,
         attribute: 'request_body',
-        code: 'parameter_missing',
+        code: 'parsing_error',
         message: exception.message || 'Error occured while parsing request parameters'
       )
     end
@@ -93,6 +93,15 @@ class ErrorFormatter
         attribute: 'base',
         code: 'internal_server_error',
         message: 'An unexpected error occurred'
+      )
+    end
+
+    def invalid_arguments_error(exception)
+      ErrorDetails.single_error(
+        status: 400,
+        attribute: 'base',
+        code: 'invalid_arguments',
+        message: exception.message
       )
     end
 

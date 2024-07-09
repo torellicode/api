@@ -137,6 +137,5 @@ It may benefit you to also note your id
 
 
 ### Planned updates
-- improve error handeling for sessions and articles
-- edge case error handling
 - robust and efficient test suite
+- rate limiting

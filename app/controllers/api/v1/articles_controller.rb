@@ -14,6 +14,10 @@ module Api
         else
           render json: { errors: ErrorFormatter.format_errors(article) }, status: :unprocessable_entity
         end
+      rescue ActionController::ParameterMissing => e
+        render_bad_request_response(e)
+      rescue ArgumentError => e
+        render_invalid_arguments_response(e)
       end
 
       def show
@@ -34,6 +38,10 @@ module Api
         else
           render json: { errors: ErrorFormatter.format_errors(@article) }, status: :unprocessable_entity
         end
+      rescue ActionController::ParameterMissing => e
+        render_bad_request_response(e)
+      rescue ArgumentError => e
+        render_invalid_arguments_response(e)
       end
 
       def destroy
@@ -49,19 +57,19 @@ module Api
       def set_article
         @article = Article.find(params[:id])
       rescue ActiveRecord::RecordNotFound => e
-        render json: { errors: [ErrorFormatter.record_not_found_error(e)] }, status: :not_found
+        render_not_found_response(e)
       end
 
       def authorize_article
-        render_unauthorized_error unless @article.user_id == current_user.id
+        render_unauthorized_error(UnauthorizedError.new("You are not authorized to access this resource")) unless @article.user_id == current_user.id
       end
 
       def article_params
         params.require(:article).permit(:title, :content)
       end
 
-      def render_unauthorized_error
-        render json: { errors: [ErrorFormatter.unauthorized_error(UnauthorizedError.new("You are not authorized to access this resource"))] }, status: :forbidden
+      def render_invalid_arguments_response(exception)
+        render json: { errors: [ErrorFormatter.invalid_arguments_error(exception)] }, status: :bad_request
       end
     end
   end

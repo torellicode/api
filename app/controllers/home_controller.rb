@@ -7,7 +7,7 @@ class HomeController < ApplicationController
       endpoints: {
         users: [
           { method: "POST", endpoint: "/api/v1/users" },
-          { method: "GET", endpoint: "/api/v1/data" },
+          { method: "GET", endpoint: "/api/v1/users/data" },
           { method: "PUT", endpoint: "/api/v1/users/:user_id" },
           { method: "DELETE", endpoint: "/api/v1/users/:user_id" }
         ],

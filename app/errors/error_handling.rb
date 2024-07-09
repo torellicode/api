@@ -7,6 +7,8 @@ module ErrorHandling
     rescue_from ActiveRecord::RecordNotFound, with: :render_not_found_response
     rescue_from ActionDispatch::Http::Parameters::ParseError, with: :render_parse_error_response
     rescue_from ActionController::RoutingError, with: :render_routing_error_response
+    rescue_from ArgumentError, with: :render_invalid_arguments_response
+    rescue_from UnauthorizedError, with: :render_unauthorized_error
   end
 
   private
@@ -29,5 +31,13 @@ module ErrorHandling
 
   def render_routing_error_response(exception)
     render json: { errors: [ErrorFormatter.routing_error(exception)] }, status: :not_found
+  end
+
+  def render_invalid_arguments_response(exception)
+    render json: { errors: [ErrorFormatter.invalid_arguments_error(exception)] }, status: :bad_request
+  end
+
+  def render_unauthorized_error(exception)
+    render json: { errors: [ErrorFormatter.unauthorized_error(exception)] }, status: :forbidden
   end
 end
