@@ -8,10 +8,28 @@ class ErrorFormatter
 
     def parameter_missing_error(exception)
       ErrorDetails.single_error(
-        status: 400,
+        status: 422,
         attribute: exception.param,
         code: 'parameter_missing',
         message: exception.message
+      )
+    end
+
+    def parse_error(exception)
+      ErrorDetails.single_error(
+        status: 400,
+        attribute: 'request_body',
+        code: 'parameter_missing',
+        message: exception.message || 'Error occured while parsing request parameters'
+      )
+    end
+
+    def routing_error(exception)
+      ErrorDetails.single_error(
+        status: 404,
+        attribute: 'request_path',
+        code: 'routing_error',
+        message: exception.message || 'The requested path does not exist'
       )
     end
 
@@ -24,16 +42,16 @@ class ErrorFormatter
       )
     end
 
-    def missing_token_error(exception)
+    def missing_token_error(_exception = nil)
       ErrorDetails.single_error(
-        status: 400,
+        status: 401,
         attribute: 'authorization',
         code: 'missing_token',
         message: 'Authorization token is missing'
       )
     end
 
-    def invalid_token_error(exception)
+    def invalid_token_error(_exception = nil)
       ErrorDetails.single_error(
         status: 401,
         attribute: 'authorization',
@@ -42,12 +60,21 @@ class ErrorFormatter
       )
     end
 
-    def expired_token_error(exception)
+    def expired_token_error(_exception = nil)
       ErrorDetails.single_error(
         status: 401,
         attribute: 'authorization',
         code: 'expired_token',
         message: 'Authorization token has expired'
+      )
+    end
+
+    def invalid_login_error
+      ErrorDetails.single_error(
+        status: 401,
+        attribute: 'authentication',
+        code: 'invalid_login',
+        message: 'Invalid email or password'
       )
     end
 
@@ -60,12 +87,12 @@ class ErrorFormatter
       )
     end
 
-    def invalid_login_error
+    def internal_server_error(_exception)
       ErrorDetails.single_error(
-        status: 422,
-        attribute: 'authentication',
-        code: 'invalid_login',
-        message: 'Invalid email or password'
+        status: 500,
+        attribute: 'base',
+        code: 'internal_server_error',
+        message: 'An unexpected error occurred'
       )
     end
 

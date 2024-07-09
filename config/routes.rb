@@ -11,6 +11,8 @@ Rails.application.routes.draw do
     end
   end
 
+  match '*unmatched', to: 'errors#routing', via: :all
+
   root "home#index"
 
   # Health check routes

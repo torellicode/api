@@ -6,7 +6,7 @@ class ErrorResponder
     message = error_message(exception, status)
     attribute = exception.try(:param) || :base
     code = http_status_to_code(status)
-    body = { errors: [ErrorFormatter.single_error(status: status, attribute: attribute, code: code, detail: message)] }
+    body = { errors: [ErrorDetails.single_error(status: status, attribute: attribute, code: code, message: message)] }
     render_error(status, request.formats.first, body)
   end
 

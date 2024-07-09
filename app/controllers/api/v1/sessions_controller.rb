@@ -19,7 +19,7 @@ module Api
       end
 
       def destroy
-        user_token = UserToken.find_by(token: token_from_header)
+        user_token = UserToken.find_by(token: extract_token)
 
         if user_token
           user = User.find_by(id: user_token.user_id)
@@ -31,11 +31,6 @@ module Api
       end
 
       private
-
-      def token_from_header
-        auth_header = request.headers['Authorization']
-        auth_header.split(' ').last if auth_header.present?
-      end
 
       def sessions_created_response(user)
         user_token = user.user_token
