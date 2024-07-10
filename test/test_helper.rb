@@ -7,6 +7,9 @@ Minitest::Reporters.use!(Minitest::Reporters::SpecReporter.new)
 
 module ActiveSupport
   class TestCase
+    # Run tests in the order they are defined (sorted order)
+    # self.test_order = :sorted
+
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)
 
