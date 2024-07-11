@@ -8,6 +8,6 @@ class Session < ApplicationRecord
   private
 
   def generate_session_id
-    self.session_id = SecureRandom.hex(20)
+    self.session_id ||= SecureRandom.hex(20)
   end
 end

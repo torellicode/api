@@ -186,6 +186,15 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_includes error_details, 'Authorization token is invalid'
   end
 
+  test 'should not destroy user with missing token' do
+    login_as(@user)
+    assert_no_difference('User.count') do
+      delete api_v1_user_url(@user), headers: {  }
+    end
+    assert_response :unauthorized
+    assert_includes error_details, 'Authorization token is missing'
+  end
+
   test 'should fetch user data with valid token' do
     login_as(@user)
     get api_v1_users_data_url(id: @user.id), headers: authenticated_header
@@ -198,6 +207,13 @@ class Api::V1::UsersControllerTest < ActionDispatch::IntegrationTest
     get api_v1_users_data_url(@user), headers: { 'Authorization': 'Bearer invalid_token' }
     assert_response :unauthorized
     assert_includes error_details, 'Authorization token is invalid'
+  end
+
+  test 'should not fetch user data with missing token' do
+    login_as(@user)
+    get api_v1_users_data_url(@user), headers: {  }
+    assert_response :unauthorized
+    assert_includes error_details, 'Authorization token is missing'
   end
 
   test 'should not return index' do
