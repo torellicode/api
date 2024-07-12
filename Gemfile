@@ -49,6 +49,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
   gem 'guard-minitest', require: false
   gem 'minitest-reporters', '>= 1.0.0', '< 2.0'
+  gem 'timecop'
 end
 
 group :development do

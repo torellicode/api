@@ -10,25 +10,8 @@ class Api::V1::SessionsControllerTest < ActionDispatch::IntegrationTest
 
   # == Helper Methods ==
 
-  def login_as(user)
-    post api_v1_login_url, params: { email: user.email, password: 'password123' }
-    @token = json_body['data']['token']
-  end
-
-  def authenticated_header
-    { 'Authorization': "Bearer #{@token}" }
-  end
-
-  def json_body
-    JSON.parse(response.body)
-  end
-
   def logout(token)
     delete api_v1_logout_url, headers: { 'Authorization': "Bearer #{token}" }
-  end
-
-  def error_details
-    json_body['errors'].map { |error| error['detail'] }
   end
 
   # == Tests ==

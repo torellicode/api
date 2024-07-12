@@ -4,7 +4,7 @@ Built using Ruby version 3.2.2 and Rails verison 7.1.3.4
 <br>
 
 ### Features
-- **User Tokens** - Encryption/decryption similar to JWT
+- **User Tokens** - Encoding/decoding similar to JWT
 - **Sessions** - Creating a new session will provide a token
 - **Users** - Creating a new user begins a session and provide a token
 - **Articles** - 20 articles are created upon user creation to test pagination

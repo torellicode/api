@@ -3,3 +3,7 @@
 one:
   email: testuser1@example.com
   password_digest: <%= BCrypt::Password.create('password123') %>
+
+two:
+  email: testuser2@example.com
+  password_digest: <%= BCrypt::Password.create('password123') %>

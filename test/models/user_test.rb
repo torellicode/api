@@ -4,15 +4,13 @@ class UserTest < ActiveSupport::TestCase
   # == Setup ==
 
   setup do
-    @user = User.new(email: "userone@example.com", password: "password123", password_confirmation: "password123")
-    @user_two = User.new(email: "usertwo@example.com", password: "password123", password_confirmation: "password123")
+    @user = User.new(email: "valid@example.com", password: "password123", password_confirmation: "password123")
   end
 
   # == Tests ==
 
   test 'valid users created in setup' do
     assert @user.valid?, 'User one should be valid'
-    assert @user_two.valid?, 'User two should be valid'
   end
 
   test 'email should be present' do
